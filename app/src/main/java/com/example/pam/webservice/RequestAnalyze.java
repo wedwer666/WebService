@@ -9,4 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 public class RequestAnalyze extends AppCompatActivity {
 
     //rejex file to extract filess
+    public extract ExtractInfo {
+
+    }
 }

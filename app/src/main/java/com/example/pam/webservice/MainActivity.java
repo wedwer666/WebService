@@ -44,16 +44,11 @@ public class MainActivity extends AppCompatActivity {
 
         //BUTTON TO SEND A HTTP REQUSEST TO ORANGE.MD PAGE AND EXCTRACT INFORMATION FORM HERE
         sendButton = (Button) findViewById(R.id.sendbutton);
-//        try {
-//            URL url = new URL("https://www.orangetext.md/ro");
-//        } catch (MalformedURLException e) {
-//            e.printStackTrace();
-//        }
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                StringBuilder chaine = new StringBuilder("");
+                StringBuilder sb = new StringBuilder("");
 
                 try {
                     URL requestUrl = new URL(url);
@@ -69,15 +64,17 @@ public class MainActivity extends AppCompatActivity {
 
                     String line = "";
 
+                    System.out.println(connection.getResponseCode());
+
                     while ((line = rd.readLine()) != null) {
-                        chaine.append(line);
+                        sb.append(line);
                     }
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
-                Log.d("testest", chaine.toString());
+                Log.d("testest", sb.toString());
             }
         });
     }
