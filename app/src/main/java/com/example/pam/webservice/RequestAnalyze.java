@@ -1,5 +1,6 @@
 package com.example.pam.webservice;
 
+import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -15,6 +16,10 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import android.util.Patterns;
 
+import org.apache.http.client.methods.HttpGetHC4;
+import org.apache.http.impl.DefaultBHttpClientConnection;
+import org.apache.http.impl.client.HttpClients;
+
 
 /**
  * Created by Maria on 03.11.2017.
@@ -22,14 +27,24 @@ import android.util.Patterns;
 
 public class RequestAnalyze extends AppCompatActivity {
 
-    public String url = "https://www.orangetext.md/";
+    private final String User_Agent = "https://www.orangetext.md/";
 
-    //rejex file to extract filess
-    public Captcha extractCaptcha() {
+    public static void main(String[] args) throws Exception {
+
+        RequestAnalyze http = new RequestAnalyze();
+
+        System.out.println("Testing 1 - Send Http GET request");
+        http.sendGet();
+
+        System.out.println("\nTesting 2 - Send Http POST request");
+//        http.sendPost();
+
+    }
+
+    private void sendGet() throws Exception {
         StringBuilder sb = new StringBuilder("");
-
         try {
-            URL requestUrl = new URL(url);
+            URL requestUrl = new URL(User_Agent);
 
             HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
 
@@ -51,39 +66,18 @@ public class RequestAnalyze extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        Log.d("testest", sb.toString());
-//        while ((strResponse = rd.readLine()) != null) {
-//            sb.append(strResponse);
-
-
-        //JUST RANFOM EXAMPLE OF MYDATA
-        String returnstring = "some string with 'the data i want' inside";
-
-    public static boolean matches(String returnstring, CharSequence input) {
-        Pattern captchaRegexId = Pattern.compile("<div[\\s]+class=[\'\"]captcha[\'\"]>[\\s]*<[\\s]*input.*value=[\'\"]([0-9]+)[^\\>]{1}");
-        Pattern captchaRegexUrl = Pattern.compile("<div[\\s]+class=[\'\"]captcha[\'\"]>[\\s\r\n]*<input.*>[\\s\r\n]*<[\\s]*input.*>[\\s\r\n]*<[\\s]*img[\\s]src=[\'\"]*(\\S[^\'^\"]+)[^\"]");
-        Pattern captchaRegexToken = Pattern.compile("<div[\\s]+class=[\'\"]captcha[\'\"]>[\\s\r\n]*<input.*>[\\s\r\n]*<[\\s]*input.*value=[\'\"](\\S[^\'^\"]+)[^\\>]");
-        Pattern captchaRegexForm = Pattern.compile("<form.*id=[\'\"]websms-main-form[\\s\\S]*name=[\'\"]form_build_id.*value=[\'\"](\\S[^\'^\"]+)");
-        Matcher m1 = captchaRegexId.matcher(input);
-        Matcher m2 = captchaRegexUrl.matcher(input);
-        Matcher m3 = captchaRegexToken.matcher(input);
-        Matcher m4 = captchaRegexForm.matcher(input);
-        return m1.matches();
-//            return m2.matches();
-//            return m3.matches();
-//            return m4.matches();
-
+        Log.d("TestExampleforGET", sb.toString());
     }
 
-    //APPLY POST METHOD that submits data to be processed to a specified resource
-    public String getReturnstring() {
+    //HTTP POST REQUEST
+    private void sendPost(String catrenume, String delanume, String mesajtext, Captcha captureimage) throws Exception {
         try {
-            URL url = new URL("https://www.orangetext.md/"); //in the real code, there is an ip and a port
+            String Query = createmessage(delanume, catrenume, mesajtext.replace(" ", "+"), captureimage);
+            URL url = new URL("https://www.orangetext.md/");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Accept", "application/json");
+            conn.setRequestProperty("Content-Type", User_Agent);
+            conn.setRequestProperty("Accept", "Romanian Language");
             conn.setDoOutput(true);
             conn.setDoInput(true);
             conn.connect();
@@ -92,20 +86,37 @@ public class RequestAnalyze extends AppCompatActivity {
             os.flush();
             os.close();
 
-            Log.i("STATUS", String.valueOf(conn.getResponseCode()));
-            Log.i("MSG", conn.getResponseMessage());
+            Log.i("RequestStatus", String.valueOf(conn.getResponseCode()));
+            Log.i("MessageReceived", conn.getResponseMessage());
 
             conn.disconnect();
-        } catch (Exception e) {
-
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+    public String createmessage(String nume, String telefon, String mesaj, Captcha captcha)
+    {
+
+        //Extract information grom the html web page
+        return "nume = " + nume + "telefon =" + telefon+  "mesaj = "+ mesaj + "Captha = " + captcha;
     }
 }
 
-
-
-
-          //receive variables using post methods
-//        public Captcha postmethod() {
-//        }
+////    public static boolean matches(String returnstring, CharSequence input) {
+//        String returnstring = "some string with 'the data i want' inside";
+//        Pattern captchaRegexId = Pattern.compile("<div[\\s]+class=[\'\"]captcha[\'\"]>[\\s]*<[\\s]*input.*value=[\'\"]([0-9]+)[^\\>]{1}");
+//        Pattern captchaRegexUrl = Pattern.compile("<div[\\s]+class=[\'\"]captcha[\'\"]>[\\s\r\n]*<input.*>[\\s\r\n]*<[\\s]*input.*>[\\s\r\n]*<[\\s]*img[\\s]src=[\'\"]*(\\S[^\'^\"]+)[^\"]");
+//        Pattern captchaRegexToken = Pattern.compile("<div[\\s]+class=[\'\"]captcha[\'\"]>[\\s\r\n]*<input.*>[\\s\r\n]*<[\\s]*input.*value=[\'\"](\\S[^\'^\"]+)[^\\>]");
+//        Pattern captchaRegexForm = Pattern.compile("<form.*id=[\'\"]websms-main-form[\\s\\S]*name=[\'\"]form_build_id.*value=[\'\"](\\S[^\'^\"]+)");
+//        Matcher m1 = captchaRegexId.matcher(returnstring);
+//        Matcher m2 = captchaRegexUrl.matcher(returnstring);
+//        Matcher m3 = captchaRegexToken.matcher(returnstring);
+//        Matcher m4 = captchaRegexForm.matcher(returnstring);
+//        String RegexId = m1.group(1);
+//        String RegexUrl = m2.group(2);
+//        String RegexToken = m3.group(3);
+//        String RegexForm = m4.group(4);
+//
+//        return new  Captcha(RegexId, RegexUrl, RegexToken, RegexForm);
+//    }
 
