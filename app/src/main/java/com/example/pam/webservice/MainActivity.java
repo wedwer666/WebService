@@ -9,6 +9,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private Button sendButton;
     //    private DownloadManager.Request request;
     private String url = "https://www.orangetext.md/";
+    private String sResponse;
 
     // Create a new HttpClient and Post Header
     @Override
@@ -47,36 +53,99 @@ public class MainActivity extends AppCompatActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 StringBuilder sb = new StringBuilder("");
 
                 try {
                     URL requestUrl = new URL(url);
 
+
                     HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
 
                     connection.setRequestMethod("GET");
+                    connection.setRequestProperty("Accept", "application/xml");
                     connection.connect();
 
-                    InputStream inputStream = connection.getInputStream();
+                    InputStream xml = connection.getInputStream();
 
-                    BufferedReader rd = new BufferedReader(new InputStreamReader(inputStream));
+                    BufferedReader rd = new BufferedReader(new InputStreamReader(xml));
 
-                    String line = "";
+//                    String line = "";
 
-                    System.out.println(connection.getResponseCode());
+//                    System.out.println(connection.getResponseCode());
 
-                    while ((line = rd.readLine()) != null) {
-                        sb.append(line);
+                    String sLine;
+                    while ((sLine = rd.readLine()) != null) {
+                        sb.append(sLine);
+                        System.out.println(sLine);
                     }
-
-                } catch (IOException e) {
+                    sResponse = sb.toString();
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
-                Log.d("testest", sb.toString());
+                Document doc = null;
+                try {
+                    doc = Jsoup.parse(sResponse);
+                    System.out.println(doc);
+//                    Elements elements = doc.select("h1,h2,h3,h4,h5");
+                     Elements elements = doc.select("h3.r > a");
+
+                    for (Element element : elements) {
+                        StringBuilder sb1 = new StringBuilder   (element.toString());
+
+                        Element next = element.nextElementSibling();
+                        while (next != null && !next.tagName().startsWith("h")) {
+                            sb.append(next.toString()).append("\n");
+                            next = next.nextElementSibling();
+                        }
+                        System.out.println(sb1);
+
+                    }
+
+
+//                    String title = doc.title();
+
+//                Elements links = doc.select("a[href");
+//
+//                for (org.jsoup.nodes.Element link : links)
+//                {
+//                    System.out.println("\nLink : " + link.attr("href"));
+//                    System.out.println("Text: " + link.text());
+//                }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+//                StringBuilder sb = new StringBuilder("");
+//
+//                try {
+//                    URL requestUrl = new URL(url);
+//
+//                    HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
+//
+//                    connection.setRequestMethod("GET");
+//                    connection.connect();
+//
+//                    InputStream inputStream = connection.getInputStream();
+//
+//                    BufferedReader rd = new BufferedReader(new InputStreamReader(inputStream));
+//
+//                    String line = "";
+//
+//                    System.out.println(connection.getResponseCode());
+//
+//                    while ((line = rd.readLine()) != null) {
+//                        sb.append(line);
+//                    }
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                Log.d("testest", sb.toString());
             }
         });
 
     }
+
+
 }
